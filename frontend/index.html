@@ -17,6 +17,41 @@
 	</head>
 	<body>
 		<div id="root"></div>
+		<script>
+			// Protect against ethereum property redefinition errors from third-party scripts
+			// This prevents crashes when browser extensions or other scripts try to redefine window.ethereum
+			(function() {
+				if (typeof window === 'undefined') return;
+				
+				const originalDefineProperty = Object.defineProperty;
+				Object.defineProperty = function(obj, prop, descriptor) {
+					// Only intercept ethereum property on window object
+					if (obj === window && prop === 'ethereum') {
+						// Check if ethereum already exists
+						const existing = Object.getOwnPropertyDescriptor(window, 'ethereum');
+						if (existing && !existing.configurable) {
+							// Property exists and is not configurable, skip redefinition
+							console.warn('Skipping ethereum property redefinition - property is not configurable');
+							return window.ethereum;
+						}
+					}
+					
+					try {
+						return originalDefineProperty.call(this, obj, prop, descriptor);
+					} catch (e) {
+						// If redefinition fails for ethereum, log warning but don't crash
+						if (obj === window && prop === 'ethereum') {
+							const errorMsg = e.message || String(e);
+							if (errorMsg.includes('redefine') || errorMsg.includes('Cannot redefine')) {
+								console.warn('Failed to redefine ethereum property (likely already defined):', errorMsg);
+								return window.ethereum || (descriptor && descriptor.value);
+							}
+						}
+						throw e;
+					}
+				};
+			})();
+		</script>
 		<script type="module" src="/src/main.tsx"></script>
 	</body>
 </html>

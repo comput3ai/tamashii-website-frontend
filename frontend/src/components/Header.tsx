@@ -19,53 +19,63 @@ const smallBreakpoint = '872px'
 const NavContainer = styled.div`
 	display: flex;
 	flex-direction: row;
-	padding: 8px;
+	padding: 16px 24px;
 	background: var(--color-bg);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
 `
 
 const NavMain = styled.div`
-	display: grid;
-	grid-template-columns: minmax(256px, 1fr) minmax(312px, 1fr) minmax(64px, 1fr);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	max-width: 1400px;
+	margin: 0 auto;
+	gap: 32px;
 
 	& > .blurb {
-		justify-self: center;
+		flex: 1;
+		text-align: center;
 		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	& > .buttons {
-		justify-self: end;
+		display: flex;
+		gap: 8px;
 	}
 
 	@media (width < ${smallBreakpoint}) {
-		grid-template-columns: minmax(256px, 1fr) minmax(200px, 300px);
-		padding-right: 128px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		
 		& > .buttons {
-			justify-self: start;
-			flex-direction: row;
+			align-self: flex-end;
 		}
 
 		& > .blurb {
-			justify-self: start;
+			text-align: left;
 		}
 	}
-	@media (width < 722px) {
-		grid-template-columns: 300px;
-	}
-	gap: 24px;
-	width: 100%;
-	padding: 24px;
 
 	& a.homelink,
 	a:visited.homelink {
 		text-decoration: none;
 		color: var(--color-fg);
+		transition: opacity 0.2s;
+		
+		&:hover {
+			opacity: 0.8;
+		}
 	}
 `
 
 const VerticalStack = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 8px;
 	width: fit-content;
 
 	& span {
@@ -86,10 +96,14 @@ const symbol02 = css`
 	width: 2em;
 `
 const Chip = styled.div`
-	background: var(--color-fg);
-	color: var(--color-bg);
+	background: rgba(255, 255, 255, 0.15);
+	color: var(--color-fg);
 	width: fit-content;
-	padding: 0 4px;
+	padding: 4px 12px;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	letter-spacing: 0.05em;
+	border: 1px solid rgba(255, 255, 255, 0.2);
 `
 
 const cornerFleur = css`
@@ -119,14 +133,20 @@ export function Header() {
 			<NavMain>
 				<VerticalStack>
 					<Link to="/" className="homelink">
-						<span className={text['display/5xl']}>
-							<TamashiiLogo className={c(tamashiiLogo, iconClass)} />
-							<span>nous tamashii</span>
+						<span className={text['display/5xl']} style={{ 
+							fontFamily: 'monospace',
+							fontWeight: 'bold',
+							letterSpacing: '0.05em'
+						}}>
+							<span>TAMASHII-NETWORK</span>
 						</span>
 					</Link>
-					<span className={text['body/sm/medium']}>
+					<span className={text['body/sm/medium']} style={{ 
+						opacity: 0.7,
+						fontSize: '0.75rem',
+						letterSpacing: '0.1em'
+					}}>
 						DISTRIBUTED INTELLIGENCE NETWORK
-						<Symbol02 className={c(symbol02, iconClass)} />
 					</span>
 					<Chip className={text['aux/xs/semibold']}>TESTNET</Chip>
 				</VerticalStack>
@@ -178,7 +198,7 @@ export function Header() {
 					</Button>
 				</VerticalStack>
 			</NavMain>
-			<CornerFleur className={`${svgFillCurrentColor} ${cornerFleur}`} />
 		</NavContainer>
 	)
 }
+

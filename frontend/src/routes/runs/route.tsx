@@ -9,7 +9,16 @@ import { useStreamingLoaderData } from '../../useStreamingData.js'
 import { ApiGetContributionInfo } from 'shared'
 
 export const Route = createFileRoute('/runs')({
-	loader: fetchContributionsStreaming,
+	loader: async () => {
+		console.log('[runs/route] Loader called')
+		try {
+			console.log('[runs/route] Starting contributions stream...')
+			return fetchContributionsStreaming()
+		} catch (error) {
+			console.error('[runs/route] Loader error:', error)
+			throw error
+		}
+	},
 	component: RouteComponent,
 })
 
@@ -54,9 +63,11 @@ const MainContents = styled.div`
 	}
 `
 function RouteComponent() {
+	console.log('[runs/route] Component rendering')
 	const contributionInfo = useStreamingLoaderData<ApiGetContributionInfo>({
 		from: '/runs',
 	})
+	console.log('[runs/route] Contribution info:', contributionInfo)
 	return (
 		<Main>
 			<Header />

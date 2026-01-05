@@ -7,12 +7,41 @@ import { c } from '../utils.js'
 
 const boxHeaderChild = css`
 	padding: 0 0.4ch;
-
+	font-family: 'Geist Mono', monospace;
+	font-weight: 700;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+	
 	.theme-light & {
 		color: ${forest[700]};
 	}
 	.theme-dark & {
-		color: ${forest[300]};
+		color: #00ff88;
+		text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 30px rgba(0, 255, 136, 0.5);
+	}
+	
+	/* Cyberpunk glitch effect on hover */
+	&:hover {
+		animation: glitch 0.3s infinite;
+	}
+	
+	@keyframes glitch {
+		0%, 100% {
+			transform: translate(0);
+		}
+		20% {
+			transform: translate(-2px, 2px);
+		}
+		40% {
+			transform: translate(-2px, -2px);
+		}
+		60% {
+			transform: translate(2px, 2px);
+		}
+		80% {
+			transform: translate(2px, -2px);
+		}
 	}
 `
 

@@ -1,41 +1,56 @@
 import {
-	IndexerStatus,
-	ApiGetRuns,
-	ApiGetRun,
 	ApiGetContributionInfo,
-	formats,
+	ApiGetRun,
+	ApiGetRuns,
 	CURRENT_VERSION,
+	formats,
+	IndexerStatus,
 } from 'shared'
 import {
 	fakeContributionInfo,
 	fakeIndexerStatus,
-	makeFakeRunData,
 	fakeRunSummaries,
+	makeFakeRunData,
 } from './fakeData.js'
 
-const { protocol, hostname } = window.location
-const port = import.meta.env.VITE_BACKEND_PORT ?? window.location.port
-const origin = `${protocol}//${hostname}${port ? `:${port}` : ''}`
+// Support full backend URL override, or construct from current origin
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+	? import.meta.env.VITE_BACKEND_URL
+	: (() => {
+			const { protocol, hostname } = window.location
+			const port = import.meta.env.VITE_BACKEND_PORT ?? window.location.port
+			const origin = `${protocol}//${hostname}${port ? `:${port}` : ''}`
 
-let path = import.meta.env.VITE_BACKEND_PATH ?? '/'
-path = path.startsWith('/') ? path.substring(1) : path
+			let path = import.meta.env.VITE_BACKEND_PATH ?? '/'
+			path = path.startsWith('/') ? path.substring(1) : path
 
-if (path && !path.startsWith('/')) {
-	path = `/${path}`
-}
+			if (path && !path.startsWith('/')) {
+				path = `/${path}`
+			}
 
-const BACKEND_URL = `${origin}${path}`
+			return `${origin}${path}`
+		})()
 
 function tamashiiJsonFetch(path: string) {
+	console.log(`Fetching from ${BACKEND_URL}/${path}`)
 	return fetch(`${BACKEND_URL}/${path}`)
-		.then(async (r) => [r, await r.text()] as const)
-		.then(([r, text]) => {
+		.then(async (r) => {
+			const text = await r.text()
+			console.log(`Response status: ${r.status} for ${path}`)
 			if (r.status !== 200) {
+				console.error(`Failed to fetch ${path}:`, text)
 				throw new Error(`Failed to fetch ${path}: ${text}`)
 			}
-			return text
+			return [r, text] as const
 		})
-		.then((text) => JSON.parse(text, formats[CURRENT_VERSION].reviver))
+		.then(([r, text]) => {
+			try {
+				return JSON.parse(text, formats[CURRENT_VERSION].reviver)
+			} catch (e) {
+				console.error(`Failed to parse JSON for ${path}:`, e, text.substring(0, 200))
+				throw e
+			}
+		})
 }
 
 export async function fetchStatus(): Promise<IndexerStatus> {

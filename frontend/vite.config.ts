@@ -17,6 +17,8 @@ export default defineConfig({
 			globals: {
 				Buffer: true,
 			},
+			// Exclude problematic polyfills that cause unenv issues
+			exclude: ['process'],
 		}),
 		TanStackRouterVite({ autoCodeSplitting: true, addExtensions: true }),
 		react(),

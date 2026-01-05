@@ -1,15 +1,14 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { css, cx } from '@linaria/core'
-import { useDarkMode } from '../hooks/useDarkMode'
-import { lightTheme, darkTheme, sharedTheme } from '../theme'
+import { useDarkMode } from 'usehooks-ts'
+import { lightTheme, darkTheme, sharedTheme } from '../themes.js'
 import { EVMProvider } from '../providers/EVMProvider'
-import { ConnectionProvider, WalletProvider, WalletModalProvider } from '@solana/wallet-adapter-react'
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 
-export const Route = createRootRoute({
+export const Route = createFileRoute('/__root-unified')({
 	component: RootComponent,
 })
 
@@ -65,43 +64,46 @@ const EVM_SUPPORTED_NETWORKS = {
 const BACKEND_TYPE = import.meta.env.VITE_BACKEND_TYPE || 'solana'
 
 // Validate environment variables based on backend type
-if (BACKEND_TYPE === 'solana') {
-	if (
-		!import.meta.env.VITE_MINING_POOL_RPC ||
-		!import.meta.env.VITE_MINING_POOL_RPC.startsWith('http')
-	) {
-		throw new Error(
-			`Invalid deployment config. env var VITE_MINING_POOL_RPC was not set when building.`
-		)
-	}
+// Only validate if not using external backend URL
+if (!import.meta.env.VITE_BACKEND_URL) {
+	if (BACKEND_TYPE === 'solana') {
+		if (
+			!import.meta.env.VITE_MINING_POOL_RPC ||
+			!import.meta.env.VITE_MINING_POOL_RPC.startsWith('http')
+		) {
+			throw new Error(
+				`Invalid deployment config. env var VITE_MINING_POOL_RPC was not set when building.`
+			)
+		}
 
-	if (!import.meta.env.VITE_COORDINATOR_CLUSTER) {
-		throw new Error(
-			`Invalid deployment config. env var VITE_COORDINATOR_CLUSTER was not set when building.`
-		)
-	}
-	if (!import.meta.env.VITE_MINING_POOL_CLUSTER) {
-		throw new Error(
-			`Invalid deployment config. env var VITE_MINING_POOL_CLUSTER was not set when building.`
-		)
-	}
-} else if (BACKEND_TYPE === 'evm') {
-	if (!import.meta.env.VITE_EVM_RPC_URL) {
-		throw new Error(
-			`Invalid deployment config. env var VITE_EVM_RPC_URL was not set when building.`
-		)
-	}
+		if (!import.meta.env.VITE_COORDINATOR_CLUSTER) {
+			throw new Error(
+				`Invalid deployment config. env var VITE_COORDINATOR_CLUSTER was not set when building.`
+			)
+		}
+		if (!import.meta.env.VITE_MINING_POOL_CLUSTER) {
+			throw new Error(
+				`Invalid deployment config. env var VITE_MINING_POOL_CLUSTER was not set when building.`
+			)
+		}
+	} else if (BACKEND_TYPE === 'evm') {
+		if (!import.meta.env.VITE_EVM_RPC_URL) {
+			throw new Error(
+				`Invalid deployment config. env var VITE_EVM_RPC_URL was not set when building.`
+			)
+		}
 
-	if (!import.meta.env.VITE_EVM_CHAIN_ID) {
-		throw new Error(
-			`Invalid deployment config. env var VITE_EVM_CHAIN_ID was not set when building.`
-		)
-	}
+		if (!import.meta.env.VITE_EVM_CHAIN_ID) {
+			throw new Error(
+				`Invalid deployment config. env var VITE_EVM_CHAIN_ID was not set when building.`
+			)
+		}
 
-	if (!import.meta.env.VITE_EVM_COORDINATOR_ADDRESS) {
-		throw new Error(
-			`Invalid deployment config. env var VITE_EVM_COORDINATOR_ADDRESS was not set when building.`
-		)
+		if (!import.meta.env.VITE_EVM_COORDINATOR_ADDRESS) {
+			throw new Error(
+				`Invalid deployment config. env var VITE_EVM_COORDINATOR_ADDRESS was not set when building.`
+			)
+		}
 	}
 }
 
@@ -115,8 +117,11 @@ function SolanaProvider({ children }: { children: React.ReactNode }) {
 		new SolflareWalletAdapter(),
 	]
 
+	// Use a default Solana RPC if not set (for external backend testing)
+	const solanaRpc = import.meta.env.VITE_MINING_POOL_RPC || 'https://api.devnet.solana.com'
+
 	return (
-		<ConnectionProvider endpoint={import.meta.env.VITE_MINING_POOL_RPC}>
+		<ConnectionProvider endpoint={solanaRpc}>
 			<WalletProvider wallets={wallets} onError={(err) => console.error(err)}>
 				<WalletModalProvider>
 					{children}
