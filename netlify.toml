@@ -1,6 +1,11 @@
 [build]
-  command = "pnpm install && cd frontend && pnpm install && pnpm build"
+  base = "."
+  command = "pnpm install --frozen-lockfile && cd frontend && pnpm build"
   publish = "frontend/dist"
+  
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_VERSION = "10"
 
 [[redirects]]
   from = "/*"
