@@ -1,11 +1,12 @@
 [build]
   base = "."
-  command = "pnpm install --frozen-lockfile && cd frontend && pnpm build"
+  command = "pnpm install --frozen-lockfile && cd frontend && VITE_BACKEND_URL=https://tamashii-website-backend-production.up.railway.app pnpm build:netlify"
   publish = "frontend/dist"
   
 [build.environment]
   NODE_VERSION = "22"
   PNPM_VERSION = "10"
+  VITE_BACKEND_URL = "https://tamashii-website-backend-production.up.railway.app"
 
 [[redirects]]
   from = "/*"

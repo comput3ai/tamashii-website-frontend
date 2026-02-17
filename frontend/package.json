@@ -16,6 +16,7 @@
 		"dev-evm-local": "VITE_BACKEND_TYPE=evm VITE_EVM_NETWORK=localhost VITE_EVM_RPC_URL=http://localhost:8545 VITE_EVM_CHAIN_ID=31337 pnpm _dev",
 		"dev-production": "VITE_BACKEND_URL=https://tamashii-website-backend-production.up.railway.app pnpm _dev",
 		"build": "tsc -b && vite build",
+		"build:netlify": "vite build",
 		"build-fake": "VITE_MINING_POOL_CLUSTER=devnet VITE_COORDINATOR_CLUSTER=devnet VITE_MINING_POOL_RPC=https://api.devnet.solana.com VITE_FAKE_DATA=1 pnpm build",
 		"build-evm-base": "VITE_BACKEND_TYPE=evm VITE_EVM_NETWORK=base VITE_EVM_RPC_URL=https://mainnet.base.org VITE_EVM_CHAIN_ID=8453 pnpm build",
 		"build-evm-base-sepolia": "VITE_BACKEND_TYPE=evm VITE_EVM_NETWORK=base-sepolia VITE_EVM_RPC_URL=https://sepolia.base.org VITE_EVM_CHAIN_ID=84532 pnpm build",
